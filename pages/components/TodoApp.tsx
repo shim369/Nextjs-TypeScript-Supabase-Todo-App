@@ -1,16 +1,40 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { addTodo, getAllTodos } from "../../utils/supabaseFunctions"
 import TodoList from './TodoList'
 
+
 const TodoApp = () => {
+    const [todos, setTodos] = useState<any>([]);
+    const [title, setTitle] = useState<string>("");
+
+    useEffect(() => {
+        const getTodos = async () => {
+            const todos = await getAllTodos();
+            setTodos(todos);
+        };
+        getTodos();
+    },[])
+
+    const handleSubmit = async(e: any) => {
+        e.preventDefault();
+
+        if (title === "") return;
+        await addTodo(title);
+        let todos = await getAllTodos();
+        setTodos(todos);
+        setTitle("");
+    };
   return (
     <div className='text-center text-white text-xl'>
-        <h1 className='mb-5'>Todo App</h1>
-        <form className="flex w-full">
+        <h1 className='mb-5 text-4xl'>Todo App</h1>
+        <form onSubmit={(e) => handleSubmit(e)} className="flex w-full">
             <input
                 id="name"
                 type="text"
-                className="px-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="text-black px-4 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter task"
+                onChange={(e)=> setTitle(e.target.value)}
+                value={title}
             />
             <button
                 type="submit"
@@ -19,7 +43,7 @@ const TodoApp = () => {
                 Add
             </button>
         </form>
-        <TodoList />
+        <TodoList todos={todos} setTodos={setTodos} />
     </div>
   )
 }
